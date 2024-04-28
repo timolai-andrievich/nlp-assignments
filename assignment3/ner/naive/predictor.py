@@ -1,9 +1,13 @@
+"""Module for named entity recognition via naive approach (predicting the most
+common label for each word.)
+"""
 from collections import defaultdict, Counter
 import re
 
 import tqdm.auto as tqdm
 
 from ner.utils import BasePredictor, Entity
+
 
 class NaivePredictor(BasePredictor):
     """Predictor for the named entity recognition task. Predicts the most common

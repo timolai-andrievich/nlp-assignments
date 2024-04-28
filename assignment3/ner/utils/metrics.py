@@ -1,4 +1,7 @@
+"""Module containing metrics for the named entity recognition task.
+"""
 from .types import Entity
+
 
 def char_wise_f1_score_macro(
     inputs: list[Entity],
@@ -48,7 +51,8 @@ def char_wise_f1_score_macro(
     f1_score_per_label = {}
     for label in label2id.values():
         numerator = 2 * true_positives[label]
-        denominator = 2 * true_positives[label] + false_negatives[label] + false_positives[label]
+        denominator = 2 * true_positives[label] + false_negatives[
+            label] + false_positives[label]
         if denominator == 0:
             res = 1
         else:

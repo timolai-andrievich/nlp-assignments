@@ -1,3 +1,5 @@
+"""Module containing the base class for named entity recognition predictors.
+"""
 from .types import Entity
 
 

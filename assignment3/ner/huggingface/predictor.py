@@ -1,3 +1,5 @@
+"""Module for named entity recognition via Huggingface models.
+"""
 from transformers import (
     AutoModelForTokenClassification,
     AutoTokenizer,

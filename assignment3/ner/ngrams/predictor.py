@@ -1,9 +1,13 @@
+"""Module for named entity recognition via N-gram approach (predicting the 
+most common label for each N-gram.)
+"""
 from collections import defaultdict, Counter
 import re
 
 import tqdm.auto as tqdm
 
 from ner.utils import BasePredictor, Entity
+
 
 class NGramPredictor(BasePredictor):
     """Predictor for the named entity recognition task. Predicts the most common
@@ -119,7 +123,7 @@ class NGramPredictor(BasePredictor):
         words = list(re.finditer(self.pattern, text))
         for i, word in enumerate(words):
             prefix = tuple(word.group()
-                      for word in words[max(0, i - self.n + 1):i + 1])
+                           for word in words[max(0, i - self.n + 1):i + 1])
             suffix = tuple(word.group() for word in words[i:i + self.n])
             label = self.get_label(prefix, suffix)
             if label == self.default_label:
