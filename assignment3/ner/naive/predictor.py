@@ -45,17 +45,25 @@ class NaivePredictor(BasePredictor):
             train_labels (list[str]): Corresponding labels.
             verbose (bool): Whether to display the progress bar or not.
         """
+        if len(train_texts) != len(train_labels):
+            raise ValueError('The lengths of texts and labels differ.')
 
         def does_overlap(
             span_a: tuple[int, int],
             span_b: tuple[int, int],
         ) -> bool:
+            """Determines whether two ranges overlap or not.
+    
+            Args:
+                span_a (tuple[int, int]): First range.
+                span_b (tuple[int, int]): Second range.
+            
+            Returns:
+                bool: Whether the spans overlap or not.
+            """
             a, b = span_a
             x, y = span_b
             return a <= x <= b or a <= y <= b
-
-        if len(train_texts) != len(train_labels):
-            raise ValueError('The lengths of texts and labels differ.')
 
         # Collect label counts from the training data
         for text, labels in tqdm.tqdm(
@@ -66,11 +74,14 @@ class NaivePredictor(BasePredictor):
         ):
             for word in re.finditer(self.pattern, text):
                 overlap_flag = False
+                # Count all labels with which the word overlaps
                 for *label_span, label in labels:
                     if not does_overlap(word.span(), label_span):
                         continue
                     overlap_flag = True
                     self.label_counts[word.group()].update([label])
+                # If the word doesn't overlap with any labels, label it with
+                # the default label
                 if not overlap_flag:
                     self.label_counts[word.group()].update(
                         [self.default_label])
@@ -99,8 +110,10 @@ class NaivePredictor(BasePredictor):
             list[Entity]: List of found entities.
         """
         result = []
+        # Predict label for each word in the text
         for token in re.finditer(self.pattern, text):
             label = self.get_label(token.group())
+            # Do not include default labels in the final result
             if label == self.default_label:
                 continue
             result.append((token.start(), token.end() - 1, label))

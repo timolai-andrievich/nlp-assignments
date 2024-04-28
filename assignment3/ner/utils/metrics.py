@@ -8,7 +8,8 @@ def char_wise_f1_score_macro(
     target: list[Entity],
     n_labels: int,
 ) -> float:
-    """Calculates macro F1 score character-wise.
+    """Calculates macro F1 score character-wise. If the label is neither in
+    inputs or target, assume it has F1 score of 1.
     
     Args:
         inputs (list[Entity]): Predicted values.
@@ -16,7 +17,7 @@ def char_wise_f1_score_macro(
         n_labels (int): Number of labels in the dataset.
     
     Returns:
-        float: F1 score.
+        float: Average F1 score across all labels.
     """
     if not inputs or not target:
         return 0.0
@@ -58,6 +59,8 @@ def char_wise_f1_score_macro(
         else:
             res = numerator / denominator
         f1_score_per_label[label] = res
+    # Calculate the average of F1 scores across all labels
+    # (Assume F1 score of 1 for labels not present in the text)
     avg_score = (sum(f1_score_per_label.values()) + n_labels -
                  len(f1_score_per_label)) / n_labels
     return avg_score
