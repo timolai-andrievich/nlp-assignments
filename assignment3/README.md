@@ -6,6 +6,8 @@
 
 To generate submission files, run `python3 generate_test_predictions.py`. To get metrics, run/see [`metrics.ipynb`](metrics.ipynb) as a Jupyter notebook.
 
+Fine-tuned [BERT](tandrievich/google-bert-finetuned) and [LaBSE](https://huggingface.co/tandrievich/LaBSE-finetuned) models are also available through HuggingFace API, and can be tried online on corresponding pages.
+
 ## Repository structure
 
 - `data/` - data used for training/testing.
