@@ -1,0 +1,114 @@
+\documentclass{article}
+
+\title{NLP Assingment 3}
+\author{Timolai Andrievich}
+\date{April 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Named entity recognition (NER) is an information extraction task. The goal of 
+this assignment is to create models for the NER task, and evaluate them using
+NEREL-based Russian dataset containing 29 classes.
+
+\section{Approaches}
+
+\subsection{Naive approach}
+
+The most obvious approach for the NER task is to split the text into words
+through some approach and count the labels for each word in the training set.
+During inference, the most common label is predicted for each word. Being the
+simplest approach listed, it will be used as a baseline.
+
+\subsection{N-grams}
+
+N-grams are often the next step after the naive approach in NLP tasks, as they
+allow for incorporation of a limited context, while still being easy to 
+implement and having a good performance.
+
+\subsection{Fine-tuning a BERT model}
+
+BERT \cite{devlin2019bert} is a model introduced in 2019 by Devlin et al., but
+the name since became the name of the family of tranformer models, the main
+characteristics of which is bidirectionality and pre-training on masked
+token prediction and next sentence prediction. This encourages the model to
+produce meaningful token embeddings, which then can be used in downstream
+tasks, such as NER. Furthermore, using modern tooling, finetuning such a model
+is trivial.
+
+\section{Method}
+
+For the first two approaches, the text is split into tokens using regular
+expression \verb|\S+|, which effectively splits the text by whitespace
+symbols. For each approach, two predictions are joined if they both predict
+the same label, and are separated by one character. This is done to match the
+dataset format, in which multiple words can belong to the same entity.
+
+\subsection{Naive approach}
+
+For each token in the text, the labels are counted. The label is counted if the
+word intersects with the entity with the corresponding label. If one word
+overlaps with multiple entities, label for each entity is counted. If the word
+doesn't overlap with any of the entities, the no-entity label is counted
+instead. During inference, the most common label for each word is chosen. If
+the word was not seen during training, the no-entity label is predicted.
+
+\subsection{N-grams}
+
+For each word in the text, two N-grams are formed: the one with preceding
+context, and the one with succeding context, each containing the target word.
+The text is padded beforehand, so the words in the start and the end of the
+text are counted as well. Then the labels are counted for both n-grams. Labels
+are counted separately for preceding and succeding contexts, and individual
+words are labeled the same as in the naive approach. During inference, the
+label counts for preceding and succeding counts are summed, and the most common
+label from the joint counts is chosen.
+
+\subsection{BERT}
+
+During the training, the tokens are labeled the same way the words are labeled
+in the naive approach: if the token intersects an entity, it is labeled using
+the label of the entity, otherwise it is labeled with the no-entity label. It
+is assumed that no entities overlap, and each token can overlap with one entity
+at most. Then, the model is trained on the resulting dataset. As the pretrained
+model, two models were used: LaBSE \cite{feng2022languageagnostic}, and
+the multilingual version of BERT \cite{devlin2019bert}. During inference, each
+word was labeled with the entity of the first token in the word.
+
+\section{Evaluation}
+
+The models were evaluated using character-wise F1 score, which is calculated as
+follows: each character is labeled by the label of the token it belongs to. If
+a symbol does not belong to any token, it is labeled as no-entity. This
+operation is performed on both prediction and the target data, and 
+macro-averaged F1 score is calculated on the resulting labeled strings.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Model & Symbol-wise F1 score & F1 score \\
+        \hline
+        Naive & 0.7260 & 0.2056 \\
+        Bigram & 0.6809 & 0.0868 \\
+        Trigram & 0.5330 & 0.0241 \\
+        BERT & 0.8562 & 0.5479 \\
+        LaBSE & \textbf{0.8742} & \textbf{0.5786} \\
+        \hline
+    \end{tabular}
+    \caption{Evaluation results}
+    \label{tab:results}
+\end{table}
+
+As seen in Table \ref{tab:results}, n-gram models perform worse than the
+baseline naive approach. This could be due to a multitude of reasons, most
+likely being the small size of the training set, leading to most of bigrams
+and trigrams not being seen during training.
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
