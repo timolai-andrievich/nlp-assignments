@@ -63,7 +63,9 @@ class HuggingfacePredictor(BasePredictor):
             list[Entity]: List of found entities.
         """
         result = []
+        # Pass the text through the pipeline
         pipeline_results = self.pipeline(text)
+        # Convert predictions to a format given in the assignment
         for res in pipeline_results:
-            result.append((res['start'], res['end'], res['entity_group']))
+            result.append((res['start'], res['end'] - 1, res['entity_group']))
         return result
