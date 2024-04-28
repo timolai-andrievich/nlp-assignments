@@ -47,9 +47,17 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Initialize predictors
     predictors: dict[str, BasePredictor] = {
-        'huggingface': HuggingfacePredictor(device=device),
-        'naive': NaivePredictor(),
-        '2gram': NGramPredictor(2),
+        'LaBSE': (HuggingfacePredictor(
+            device=device,
+            model_id='tandrievich/LaBSE-finetuned',
+        )),
+        'BERT': (HuggingfacePredictor(
+            device=device,
+            model_id='tandrievich/google-bert-finetuned',
+        )),
+        'naive': (NaivePredictor()),
+        'bigram': (NGramPredictor(2)),
+        'trigram': (NGramPredictor(3)),
     }
     # Read test and train data
     train_df = pd.read_json('data/train.jsonl', lines=True)
